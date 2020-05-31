@@ -26,4 +26,8 @@ public enum RegionEnum {
         }
         return null;
     }
+
+    public String getLabel() {
+        return label;
+    }
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 /**
@@ -13,11 +14,11 @@ import java.io.Serializable;
  * Created by Jason Tao on 5/29/2020
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
 @Entity
+@Table(name = "tour_package")
 public class TourPackage implements Serializable {
 
     @Id
@@ -25,4 +26,10 @@ public class TourPackage implements Serializable {
 
     @Column
     private String name;
+
+    @Builder
+    public TourPackage(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
 }

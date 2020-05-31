@@ -15,27 +15,16 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @ToString
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
-public class Tour extends BaseEntity implements Serializable {
+public class Tour implements Serializable {
 
-    @Builder
-    public Tour(long id, Date createdDate, Date lastModifiedDate, String tourTitle, String description,
-                String blurb, Integer price, String duration, TourPackage tourPackage,
-                DifficultyEnum difficulty, RegionEnum region) {
-        super(id, createdDate, lastModifiedDate);
-        this.tourTitle = tourTitle;
-        this.description = description;
-        this.blurb = blurb;
-        this.price = price;
-        this.duration = duration;
-        this.tourPackage = tourPackage;
-        this.difficulty = difficulty;
-        this.region = region;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotNull
-    @Column
+    @Column(name = "tour_title", length = 100)
     private String tourTitle;
 
     @Column(length = 2000)
@@ -52,7 +41,7 @@ public class Tour extends BaseEntity implements Serializable {
     @Column
     private String duration;
 
-    @Column(length = 1000)
+    @Column(name = "bullets", length = 1000)
     private String keyBullets;
 
     @Column
@@ -63,10 +52,26 @@ public class Tour extends BaseEntity implements Serializable {
 
     @NotNull
     @Column
+    @Enumerated(EnumType.STRING)
     private DifficultyEnum difficulty;
 
     @NotNull
     @Column
     private RegionEnum region;
+
+    @Builder
+    public Tour(String tourTitle, String description, String blurb, String keyBullets, Integer price, String duration,
+                TourPackage tourPackage, DifficultyEnum difficulty, RegionEnum region, String keywords) {
+        this.tourTitle = tourTitle;
+        this.description = description;
+        this.blurb = blurb;
+        this.keyBullets = keyBullets;
+        this.price = price;
+        this.duration = duration;
+        this.tourPackage = tourPackage;
+        this.difficulty = difficulty;
+        this.region = region;
+        this.keywords = keywords;
+    }
 
 }
