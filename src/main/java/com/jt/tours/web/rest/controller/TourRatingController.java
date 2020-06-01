@@ -2,40 +2,48 @@ package com.jt.tours.web.rest.controller;
 
 import com.jt.tours.domain.TourRating;
 import com.jt.tours.service.impl.TourRatingService;
+import com.jt.tours.web.rest.assembler.RatingAssembler;
 import com.jt.tours.web.rest.dto.TourRatingDTO;
 import com.jt.tours.web.rest.dto.mapper.TourRatingMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.AbstractMap;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 /**
  * Tour Rating Controller
  *
  * Created by Jason Tao on 5/30/2020
  */
+@RequestMapping("/api/v1/tours/{tourId}/ratings")
 @RestController
-@RequestMapping("/api/v1/tour/{tourId}/ratings")
+@Slf4j
 public class TourRatingController {
+
+    private static final String ROOT_API_PATH_PREFIX = "/api/v1";
 
     private TourRatingService tourRatingService;
 
     private TourRatingMapper tourRatingMapper;
 
+    private RatingAssembler ratingAssembler;
+
     protected TourRatingController() {}
 
     @Autowired
-    public TourRatingController(TourRatingService tourRatingService, TourRatingMapper tourRatingMapper) {
+    public TourRatingController(TourRatingService tourRatingService, TourRatingMapper tourRatingMapper, RatingAssembler ratingAssembler) {
         this.tourRatingService = tourRatingService;
         this.tourRatingMapper = tourRatingMapper;
+        this.ratingAssembler = ratingAssembler;
     }
 
     /**
@@ -47,7 +55,7 @@ public class TourRatingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
-
+        log.info("POST {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
         tourRatingService.createNewRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment());
     }
 
@@ -63,7 +71,7 @@ public class TourRatingController {
     public void createTourRatings(@PathVariable("tourId") long tourId,
                                   @PathVariable("score") int ratingScore,
                                   @RequestParam("customers") Long[] customers) {
-
+        log.info("POST {}/tours/{}/ratings/{}", ROOT_API_PATH_PREFIX, tourId, ratingScore);
         tourRatingService.createNewRatings(tourId, customers, ratingScore);
     }
 
@@ -75,13 +83,11 @@ public class TourRatingController {
      * @return page of Tour Rating DTO
      */
     @GetMapping
-    public Page<TourRatingDTO> getAllRatingsFromTour(@PathVariable("tourId") long tourId, Pageable pageable) {
-
+    public PagedModel<TourRatingDTO> getAllRatingsFromTour(@PathVariable("tourId") long tourId, Pageable pageable,
+                                                           PagedResourcesAssembler pagedAssembler) {
+        log.info("GET {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
         Page<TourRating> pagedTourRating = tourRatingService.getTourRatings(tourId, pageable);
-        List<TourRatingDTO> tourRatingDTOList = pagedTourRating.getContent()
-                .stream().map(tourRatingMapper::tourRatingToTourRatingDTO)
-                .collect(Collectors.toList());
-        return new PageImpl<>(tourRatingDTOList, pageable, pagedTourRating.getTotalPages());
+        return pagedAssembler.toModel(pagedTourRating, ratingAssembler);
     }
 
     /**
@@ -92,6 +98,7 @@ public class TourRatingController {
      */
     @GetMapping("/average")
     public AbstractMap.SimpleEntry<String, Double> getAverage(@PathVariable("tourId") long tourId) {
+        log.info("GET {}/tours/{}/ratings/average", ROOT_API_PATH_PREFIX, tourId);
         return new AbstractMap.SimpleEntry<String, Double>("average", tourRatingService.getAverageRatingScore(tourId));
     }
 
@@ -104,7 +111,7 @@ public class TourRatingController {
      */
     @PutMapping
     public TourRatingDTO updateTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
-
+        log.info("PUT {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
         return tourRatingMapper
                 .tourRatingToTourRatingDTO(tourRatingService.updateRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment()));
     }
@@ -118,6 +125,7 @@ public class TourRatingController {
      */
     @PatchMapping
     public TourRatingDTO updatePartialTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+        log.info("PATCH {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
         return tourRatingMapper
                 .tourRatingToTourRatingDTO(tourRatingService.updateSomeRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment()));
     }
@@ -130,6 +138,7 @@ public class TourRatingController {
      */
     @DeleteMapping("/{customerId}")
     public void removeTourRating(@PathVariable("tourId") long tourId, @PathVariable("customerId") long customerId) {
+        log.info("PATCH {}/tours/{}/ratings/{}", ROOT_API_PATH_PREFIX, tourId, customerId);
         tourRatingService.delete(tourId, customerId);
     }
 
@@ -142,6 +151,7 @@ public class TourRatingController {
     @ExceptionHandler({NoSuchElementException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleTourRatingNotFoundException(NoSuchElementException ex) {
+        log.info("Error finding tour rating: ", ex.getMessage());
         return ex.getMessage();
     }
 }

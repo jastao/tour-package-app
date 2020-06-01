@@ -1,13 +1,11 @@
 package com.jt.tours.service;
 
-import com.jt.tours.domain.Tour;
 import com.jt.tours.domain.TourRating;
-import com.jt.tours.repository.TourRatingRepository;
-import com.jt.tours.repository.TourRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Tour Rating Service Interface
@@ -19,6 +17,10 @@ public interface ITourRatingService {
     void createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment);
 
     void createNewRatings(Long tourId, Long[] customerId, Integer ratingScore);
+
+    Optional<TourRating> searchRatingById(Long id);
+
+    List<TourRating> searchAllRatings();
 
     Page<TourRating> getTourRatings(Long tourId, Pageable pageable);
 

@@ -5,22 +5,23 @@ import com.jt.tours.domain.TourRating;
 import com.jt.tours.repository.TourRatingRepository;
 import com.jt.tours.repository.TourRepository;
 import com.jt.tours.service.ITourRatingService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.OptionalDouble;
+import java.util.*;
 
 /**
  * Tour Rating Service
  *
  * Created by Jason Tao on 5/30/2020
  */
+@Slf4j
 @Service
+@Transactional
 public class TourRatingService implements ITourRatingService {
 
     private TourRatingRepository tourRatingRepository;
@@ -45,6 +46,7 @@ public class TourRatingService implements ITourRatingService {
     @Override
     public void createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment) throws NoSuchElementException {
 
+        log.info("Create tour rating for tour {} of customer {}", tourId, customerId);
         Tour targetTour = findTour(tourId);
         tourRatingRepository.save(TourRating.builder()
                                     .tour(targetTour)
@@ -62,6 +64,7 @@ public class TourRatingService implements ITourRatingService {
      */
     public void createNewRatings(Long tourId, Long[] customerIds, Integer ratingScore) {
 
+        log.info("Create tour rating for tour {} of customers {}", tourId, Arrays.asList(customerIds).toString());
         tourRepository.findById(tourId).ifPresent(tour -> {
             for(Long id : customerIds) {
                 tourRatingRepository.save(TourRating.builder()
@@ -70,6 +73,31 @@ public class TourRatingService implements ITourRatingService {
                         .build());
             }
         });
+    }
+
+    /**
+     * Find the tour rating by tour rating id.
+     *
+     * @param id the tour rating identifier
+     * @return the tour rating if found
+     */
+    @Override
+    public Optional<TourRating> searchRatingById(Long id) {
+
+        log.info("Find tour rating by rating {}", id);
+        return tourRatingRepository.findById(id);
+    }
+
+    /**
+     * Find all tour ratings.
+     *
+     * @return list of tour ratings
+     */
+    @Override
+    public List<TourRating> searchAllRatings() {
+
+        log.info("Find all tour ratings available");
+        return tourRatingRepository.findAll();
     }
 
     /**
@@ -83,6 +111,7 @@ public class TourRatingService implements ITourRatingService {
     @Override
     public Page<TourRating> getTourRatings(Long tourId, Pageable pageable) throws NoSuchElementException {
 
+        log.info("Retrieve tour rating for tour {}", tourId);
         Tour targetTour = findTour(tourId);
         return tourRatingRepository.findByTourId(targetTour.getId(), pageable);
     }

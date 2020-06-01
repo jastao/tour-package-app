@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +13,7 @@ import java.util.Optional;
  * Created by Jason Tao on 5/30/2020
  */
 @RepositoryRestResource(exported = false)
-public interface TourRatingRepository extends JpaRepository<TourRating, Integer> {
+public interface TourRatingRepository extends JpaRepository<TourRating, Long> {
 
     /**
      * Find a list of TourRating by tour id.
