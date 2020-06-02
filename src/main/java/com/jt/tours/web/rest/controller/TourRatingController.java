@@ -5,11 +5,14 @@ import com.jt.tours.service.impl.TourRatingService;
 import com.jt.tours.web.rest.assembler.RatingAssembler;
 import com.jt.tours.web.rest.dto.TourRatingDTO;
 import com.jt.tours.web.rest.dto.mapper.TourRatingMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -24,7 +27,8 @@ import java.util.NoSuchElementException;
  *
  * Created by Jason Tao on 5/30/2020
  */
-@RequestMapping("/api/v1/tours/{tourId}/ratings")
+@Api(description = "API for accessing tour ratings")
+@RequestMapping("${spring.data.rest.base-path}/tours/{tourId}/ratings")
 @RestController
 @Slf4j
 public class TourRatingController {
@@ -52,6 +56,11 @@ public class TourRatingController {
      * @param tourId tour identifier
      * @param tourRatingDTO the tour rating data transfer object
      */
+    @ApiOperation(value = "Create a tour rating")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK Created."),
+            @ApiResponse(code = 404, message = "Tour id does not exist.")
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
@@ -66,6 +75,12 @@ public class TourRatingController {
      * @param ratingScore rating score of the tour
      * @param customers array of customer id
      */
+    @ApiOperation(value = "Create a tour rating with same rating score for multiple customers.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 201, message = "Tour rating is created."),
+            @ApiResponse(code = 404, message = "Tour id does not exist.")
+    })
     @PostMapping("/{score}")
     @ResponseStatus(HttpStatus.CREATED)
     public void createTourRatings(@PathVariable("tourId") long tourId,
@@ -82,6 +97,10 @@ public class TourRatingController {
      * @param pageable page parameters to determine which item to fetch
      * @return page of Tour Rating DTO
      */
+    @ApiOperation(value = "Find all the rating associated with a given tour.", response = TourRatingDTO.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Tour id does not exist.")
+    })
     @GetMapping
     public PagedModel<TourRatingDTO> getAllRatingsFromTour(@PathVariable("tourId") long tourId, Pageable pageable,
                                                            PagedResourcesAssembler pagedAssembler) {
@@ -91,11 +110,15 @@ public class TourRatingController {
     }
 
     /**
-     * Calculate the average score of a Tour.
+     * Calculate the average score of a tour.
      *
      * @param tourId tour identifier
      * @return Tuple of "average" and the average value.
      */
+    @ApiOperation(value = "Calculate the average score of a tour.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Tour id does not exist.")
+    })
     @GetMapping("/average")
     public AbstractMap.SimpleEntry<String, Double> getAverage(@PathVariable("tourId") long tourId) {
         log.info("GET {}/tours/{}/ratings/average", ROOT_API_PATH_PREFIX, tourId);
@@ -109,6 +132,10 @@ public class TourRatingController {
      * @param tourRatingDTO the tour rating data transfer object
      * @return the modified tour rating object
      */
+    @ApiOperation(value = "Update the score and the comment for a tour.", response = TourRatingDTO.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Tour id does not exist.")
+    })
     @PutMapping
     public TourRatingDTO updateTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
         log.info("PUT {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
@@ -123,6 +150,10 @@ public class TourRatingController {
      * @param tourRatingDTO the tour rating data transfer object
      * @return the modified tour rating object
      */
+    @ApiOperation(value = "Update either the score or the comment for a tour.", response = TourRatingDTO.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Tour id does not exist.")
+    })
     @PatchMapping
     public TourRatingDTO updatePartialTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
         log.info("PATCH {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
@@ -136,6 +167,10 @@ public class TourRatingController {
      * @param tourId tour identifier
      * @param customerId customer identifier
      */
+    @ApiOperation(value = "Deletes a tour rating.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Tour id or customer id do not exist.")
+    })
     @DeleteMapping("/{customerId}")
     public void removeTourRating(@PathVariable("tourId") long tourId, @PathVariable("customerId") long customerId) {
         log.info("PATCH {}/tours/{}/ratings/{}", ROOT_API_PATH_PREFIX, tourId, customerId);

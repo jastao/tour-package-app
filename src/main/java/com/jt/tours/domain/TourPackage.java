@@ -1,5 +1,6 @@
 package com.jt.tours.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -22,9 +23,11 @@ import java.io.Serializable;
 public class TourPackage implements Serializable {
 
     @Id
+    @ApiModelProperty(notes = "The tour code that identifies the tour.")
     private String code;
 
     @Column
+    @ApiModelProperty(notes = "The name of the tour.")
     private String name;
 
     @Builder

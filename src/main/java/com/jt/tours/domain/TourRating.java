@@ -1,10 +1,10 @@
 package com.jt.tours.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Rating of a tour by a customer
@@ -22,19 +22,24 @@ public class TourRating implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(notes = "The database generated tour rating id.")
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "tour_id")
+    @ApiModelProperty(notes = "The tour id corresponds to the tour rating.")
     private Tour tour;
 
     @Column(name = "customer_id")
+    @ApiModelProperty(notes = "The customer id that provides the tour rating.")
     private Long customerId;
 
     @Column(name = "rating_score", nullable = false)
+    @ApiModelProperty(notes = "The actual rating score for the tour.")
     private Integer ratingScore;
 
     @Column(length = 500)
+    @ApiModelProperty(notes = "The comment given to the tour.")
     private String comment;
 
     @Builder

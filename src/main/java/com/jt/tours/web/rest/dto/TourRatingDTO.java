@@ -1,6 +1,7 @@
 package com.jt.tours.web.rest.dto;
 
 import com.sun.istack.NotNull;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,12 +25,15 @@ import javax.validation.constraints.Size;
 public class TourRatingDTO extends RepresentationModel<TourRatingDTO> {
 
     @NotNull
+    @ApiModelProperty(notes = "The customer id associated with the tour rating.")
     private Long customerId;
 
     @Min(0)
     @Max(5)
+    @ApiModelProperty(notes = "The rating score for the tour.")
     private Integer ratingScore;
 
     @Size(max = 500)
+    @ApiModelProperty(notes = "The comment given to the tour.")
     private String comment;
 }

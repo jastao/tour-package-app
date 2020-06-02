@@ -1,11 +1,11 @@
 package com.jt.tours.domain;
 
 import com.sun.istack.NotNull;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * The Tour contains all the attributes for a tour.
@@ -21,30 +21,38 @@ public class Tour implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(notes = "The database generated tour id.")
     private Long id;
 
     @NotNull
     @Column(name = "tour_title", length = 100)
+    @ApiModelProperty(notes = "The tour title.")
     private String tourTitle;
 
     @Column(length = 2000)
+    @ApiModelProperty(notes = "The description about the tour.")
     private String description;
 
     @Column(length = 2000)
+    @ApiModelProperty(notes = "The short description about the tour.")
     private String blurb;
 
     @NotNull
     @Column
+    @ApiModelProperty(notes = "The price of the tour.")
     private Integer price;
 
     @NotNull
     @Column
+    @ApiModelProperty(notes = "The time duration of the tour.")
     private String duration;
 
     @Column(name = "bullets", length = 1000)
+    @ApiModelProperty(notes = "Key bullet points for the tour.")
     private String keyBullets;
 
     @Column
+    @ApiModelProperty(notes = "Search keywords associated with the tour.")
     private String keywords;
 
     @ManyToOne
@@ -53,10 +61,12 @@ public class Tour implements Serializable {
     @NotNull
     @Column
     @Enumerated(EnumType.STRING)
+    @ApiModelProperty(notes = "")
     private DifficultyEnum difficulty;
 
     @NotNull
     @Column
+    @ApiModelProperty(notes = "")
     private RegionEnum region;
 
     @Builder

@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
  *
  * Created by Jason Tao on 6/1/2020
  */
-@RequestMapping("/ratings")
+@RequestMapping("${spring.data.rest.base-path}/ratings")
 @RestController
 @Slf4j
 public class RatingController {
