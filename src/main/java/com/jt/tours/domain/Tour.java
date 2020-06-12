@@ -14,8 +14,6 @@ import java.io.Serializable;
  */
 @Data
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode(callSuper = false)
 @Entity
 public class Tour implements Serializable {
 

@@ -14,9 +14,9 @@ import java.util.Optional;
  */
 public interface ITourRatingService {
 
-    void createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment);
+    TourRating createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment);
 
-    void createNewRatings(Long tourId, Long[] customerId, Integer ratingScore);
+    List<TourRating> createNewRatings(Long tourId, Long[] customerId, Integer ratingScore);
 
     Optional<TourRating> searchRatingById(Long id);
 

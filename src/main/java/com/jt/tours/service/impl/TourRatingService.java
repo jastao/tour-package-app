@@ -41,14 +41,15 @@ public class TourRatingService implements ITourRatingService {
      * @param customerId the customer identifier
      * @param ratingScore score of the tour rating
      * @param comment comment given about the tour
+     * @return the TourRating created
      * @throws NoSuchElementException if no Tour found
      */
     @Override
-    public void createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment) throws NoSuchElementException {
+    public TourRating createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment) throws NoSuchElementException {
 
-        log.info("Create tour rating for tour {} of customer {}", tourId, customerId);
+        log.info("Create tour rating for a tour {} of customer {}", tourId, customerId);
         Tour targetTour = findTour(tourId);
-        tourRatingRepository.save(TourRating.builder()
+        return tourRatingRepository.save(TourRating.builder()
                                     .tour(targetTour)
                                     .customerId(customerId)
                                     .ratingScore(ratingScore)
@@ -61,25 +62,32 @@ public class TourRatingService implements ITourRatingService {
      * @param tourId tour identifier
      * @param ratingScore score of tour rating
      * @param customerIds the id of multiple customers.
+     * @return list of TourRating created.
      */
-    public void createNewRatings(Long tourId, Long[] customerIds, Integer ratingScore) {
+    public List<TourRating> createNewRatings(Long tourId, Long[] customerIds, Integer ratingScore) {
 
-        log.info("Create tour rating for tour {} of customers {}", tourId, Arrays.asList(customerIds).toString());
+        List<Long> customerIdList = Arrays.asList(customerIds);
+        List<TourRating> tourRatings = new ArrayList<>();
+
+        log.info("Create tour rating for tour {} of customers {}", tourId, customerIdList.toString());
         tourRepository.findById(tourId).ifPresent(tour -> {
-            for(Long id : customerIds) {
-                tourRatingRepository.save(TourRating.builder()
-                        .tour(tour)
-                        .ratingScore(ratingScore)
-                        .build());
-            }
+            customerIdList.forEach(id -> {
+                tourRatings.add(tourRatingRepository.save(TourRating.builder()
+                                .tour(tour)
+                                .customerId(id)
+                                .ratingScore(ratingScore)
+                                .build()));
+            });
         });
+
+        return tourRatings;
     }
 
     /**
      * Find the tour rating by tour rating id.
      *
      * @param id the tour rating identifier
-     * @return the tour rating if found
+     * @return the tour rating if found.
      */
     @Override
     public Optional<TourRating> searchRatingById(Long id) {

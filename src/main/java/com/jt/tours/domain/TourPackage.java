@@ -16,8 +16,6 @@ import java.io.Serializable;
  */
 @Data
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
 @Entity
 @Table(name = "tour_package")
 public class TourPackage implements Serializable {

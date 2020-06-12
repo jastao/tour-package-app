@@ -20,6 +20,7 @@
 		<jakarta.validation.version>2.0.2</jakarta.validation.version>
 		<!-- Swagger 2.9.2 do not work well with Spring Data Rest; use snapshot version for now -->
 		<swagger.version>3.0.0-SNAPSHOT</swagger.version>
+		<jjwt.version>0.9.1</jjwt.version>
 	</properties>
 
     <!-- Snapshot repo for grabbing the swagger dependency. -->
@@ -50,7 +51,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -61,7 +65,8 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
+			<!-- Need to have scope set to compile for h2-console to run -->
+			<!--<scope>runtime</scope> -->
 		</dependency>
 
 		<!-- Utility Tools -->
@@ -97,6 +102,14 @@
 			<artifactId>springfox-data-rest</artifactId>
 			<version>${swagger.version}</version>
 		</dependency>
+
+		<!-- JSON web token support -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+
 
 		<!-- Testing related -->
 		<dependency>

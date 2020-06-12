@@ -4,6 +4,7 @@ import com.jt.tours.domain.TourPackage;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Optional;
 
@@ -25,25 +26,31 @@ public interface TourPackageRepository extends CrudRepository<TourPackage, Strin
 
     @Override
     @RestResource(exported = false)
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     <S extends TourPackage> S save(S tour);
 
     @Override
     @RestResource(exported = false)
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     <S extends TourPackage> Iterable<S> saveAll(Iterable<S> iterable);
 
     @Override
     @RestResource(exported = false)
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     void deleteById(String code);
 
     @Override
     @RestResource(exported = false)
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     void delete(TourPackage var1);
 
     @Override
     @RestResource(exported = false)
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     void deleteAll(Iterable<? extends TourPackage> iterable);
 
     @Override
     @RestResource(exported = false)
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     void deleteAll();
 }

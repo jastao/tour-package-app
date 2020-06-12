@@ -14,8 +14,6 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "tour_rating")
 public class TourRating implements Serializable {

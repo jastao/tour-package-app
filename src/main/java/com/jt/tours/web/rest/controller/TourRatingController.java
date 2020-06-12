@@ -11,12 +11,16 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.AbstractMap;
@@ -33,7 +37,7 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class TourRatingController {
 
-    private static final String ROOT_API_PATH_PREFIX = "/api/v1";
+    private static String ROOT_API_PATH_PREFIX;
 
     private TourRatingService tourRatingService;
 
@@ -44,10 +48,13 @@ public class TourRatingController {
     protected TourRatingController() {}
 
     @Autowired
-    public TourRatingController(TourRatingService tourRatingService, TourRatingMapper tourRatingMapper, RatingAssembler ratingAssembler) {
+    protected TourRatingController(TourRatingService tourRatingService,
+                                   TourRatingMapper tourRatingMapper, RatingAssembler ratingAssembler,
+                                   @Value("${spring.data.rest.base-path}") String pathPrefix) {
         this.tourRatingService = tourRatingService;
         this.tourRatingMapper = tourRatingMapper;
         this.ratingAssembler = ratingAssembler;
+        this.ROOT_API_PATH_PREFIX = pathPrefix;
     }
 
     /**
@@ -58,14 +65,24 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Create a tour rating")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK Created."),
+            @ApiResponse(code = 200, message = "OK."),
+            @ApiResponse(code = 201, message = "Tour rating created."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
     @PostMapping
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+    public ResponseEntity<?> createTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+
         log.info("POST {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
-        tourRatingService.createNewRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment());
+
+        TourRating createdRating = tourRatingService.createNewRating(
+                tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment());
+
+        return ResponseEntity.created(UriComponentsBuilder
+                                                .fromPath(ROOT_API_PATH_PREFIX + "/tours/" + tourId + "/ratings/" + createdRating.getId())
+                                                .build().toUri())
+                            .body(tourRatingMapper.tourRatingToTourRatingDTO(createdRating));
     }
 
     /**
@@ -78,10 +95,11 @@ public class TourRatingController {
     @ApiOperation(value = "Create a tour rating with same rating score for multiple customers.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 201, message = "Tour rating is created."),
+            @ApiResponse(code = 201, message = "Tour ratings are created."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
     @PostMapping("/{score}")
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public void createTourRatings(@PathVariable("tourId") long tourId,
                                   @PathVariable("score") int ratingScore,
@@ -101,6 +119,7 @@ public class TourRatingController {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
+    @PreAuthorize("permitAll()")
     @GetMapping
     public PagedModel<TourRatingDTO> getAllRatingsFromTour(@PathVariable("tourId") long tourId, Pageable pageable,
                                                            PagedResourcesAssembler pagedAssembler) {
@@ -119,6 +138,7 @@ public class TourRatingController {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     @GetMapping("/average")
     public AbstractMap.SimpleEntry<String, Double> getAverage(@PathVariable("tourId") long tourId) {
         log.info("GET {}/tours/{}/ratings/average", ROOT_API_PATH_PREFIX, tourId);
@@ -136,6 +156,7 @@ public class TourRatingController {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
+    @PreAuthorize("hasRole('CSR_USER') or hasROLE('CSR_ADMIN')")
     @PutMapping
     public TourRatingDTO updateTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
         log.info("PUT {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
@@ -154,6 +175,7 @@ public class TourRatingController {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
+    @PreAuthorize("hasRole('CSR_USER') or hasROLE('CSR_ADMIN')")
     @PatchMapping
     public TourRatingDTO updatePartialTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
         log.info("PATCH {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
@@ -171,6 +193,7 @@ public class TourRatingController {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Tour id or customer id do not exist.")
     })
+    @PreAuthorize("hasRole('CSR_USER') or hasROLE('CSR_ADMIN')")
     @DeleteMapping("/{customerId}")
     public void removeTourRating(@PathVariable("tourId") long tourId, @PathVariable("customerId") long customerId) {
         log.info("PATCH {}/tours/{}/ratings/{}", ROOT_API_PATH_PREFIX, tourId, customerId);

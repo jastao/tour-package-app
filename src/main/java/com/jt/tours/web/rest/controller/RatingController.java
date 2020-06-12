@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -18,6 +19,7 @@ import java.util.NoSuchElementException;
  */
 @RequestMapping("${spring.data.rest.base-path}/ratings")
 @RestController
+@PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
 @Slf4j
 public class RatingController {
 
