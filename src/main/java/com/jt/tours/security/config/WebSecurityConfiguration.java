@@ -4,6 +4,7 @@ import com.jt.tours.security.CsrUserDetailsService;
 import com.jt.tours.security.filters.JwtTokenFilter;
 import com.jt.tours.security.filters.RestAccessDeniedHandler;
 import com.jt.tours.security.filters.RestAuthenticationEntryPoint;
+import com.jt.tours.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,6 +48,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     /**
      * Configures the authentication manager that will be used for authenticating user.
      *
@@ -86,7 +90,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Allow h2-console to be displayed.
         http.headers().frameOptions().disable();
 
-        // No session will be created or used by spring security
+        // No session will be created or used by spring security. Session won't store user's state.
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Perform post-handling when a user logouts.
@@ -101,7 +105,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                                 .authenticationEntryPoint(restAuthenticationEntryPoint);
 
         // Adding the customized token filter before the UsernamePasswordAuthenticationFilter class.
-        http.addFilterBefore(new JwtTokenFilter(csrUserDetailsService), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtTokenFilter(csrUserDetailsService, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
     }
 
@@ -119,8 +123,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     /**
      * Define the AuthenticationManager as bean to be exposed to the application.
      *
-     * @return
-     * @throws Exception
+     * @return the authentication manager bean
+     * @throws Exception any exception thrown
      */
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {

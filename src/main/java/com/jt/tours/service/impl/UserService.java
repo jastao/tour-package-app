@@ -74,6 +74,7 @@ public class UserService {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
                 // User is valid, generate the JWT token and return it.
+                log.info("Generating JWT token for user {}", username);
                 jwtToken = Optional.of(jwtTokenProvider.createToken(username, foundUser.get().getAuthUserGroups()));
 
             } catch (AuthenticationException ex) {
@@ -103,7 +104,7 @@ public class UserService {
         // Check to see if this username already exists in database
         Optional<User> foundUser = Optional.empty();
 
-        if(!userRepository.findByUsername(username).isPresent()) {
+        if(userRepository.findByUsername(username).isEmpty()) {
 
             AuthUserGroup authUserGroup = authUserGroupRepository.findByAuthGroup(AuthUserGroupEnum.findByLabel(CSR_USER_AUTH_GROUP));
 
@@ -115,7 +116,7 @@ public class UserService {
                                 .firstName(firstName)
                                 .lastName(lastName)
                                 .email(email)
-                                .authUserGroups(Set.of(authUserGroup != null ? authUserGroup : null))
+                                .authUserGroups(Set.of(authUserGroup))
                                 .build()));
             log.info("Register new user {} ", foundUser.get().getUsername());
         }

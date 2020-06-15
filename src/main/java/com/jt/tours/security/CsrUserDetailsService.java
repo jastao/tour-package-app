@@ -67,14 +67,12 @@ public class CsrUserDetailsService implements UserDetailsService {
      */
     public Optional<UserDetails> loadUserByJwtToken(String token) throws CustomException {
 
-        if(jwtTokenProvider.validateToken(token)) {
+        String                  extractUsername = jwtTokenProvider.getUserNameFromToken(token);
+        Set<GrantedAuthority> extractAuthGroups = jwtTokenProvider.getAuthGroupsFromToken(token);
 
-            String                  extractUsername = jwtTokenProvider.getUserName(token);
-            Set<GrantedAuthority> extractAuthGroups = jwtTokenProvider.getAuthGroups(token);
+        log.info("Extracting user {} with auth group {}", extractUsername, extractAuthGroups);
 
-            log.info("Extracting user {} with auth group {}", extractUsername, extractAuthGroups);
-
-            return Optional.of(withUsername(extractUsername)
+        return Optional.of(withUsername(extractUsername)
                                     .authorities(extractAuthGroups)
                                     .password("")
                                     .accountExpired(false)
@@ -82,7 +80,5 @@ public class CsrUserDetailsService implements UserDetailsService {
                                     .credentialsExpired(false)
                                     .disabled(false)
                                     .build());
-        }
-        return Optional.empty();
     }
 }
