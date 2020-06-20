@@ -1,0 +1,29 @@
+server:
+  port: 9000
+# For production, do not leave secret in the properties file.
+security:
+  jwt:
+    token:
+      secret-key: tour-secret
+spring:
+  data:
+    rest:
+      base-path: /api/v1
+  jpa:
+    hibernate:
+      # Turn off auto generated ddl. Use the schema.sql file to load the SQL schema
+      ddl-auto: none
+    # show the sql statement
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+  datasource:
+    # For non-h2 database
+    initialization-mode: always
+    # Let the application continue even if table exists
+    continue-on-error: true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/TourPackageDb?useSSL=true&autoReconnect=true
+    username: root
+    password: password

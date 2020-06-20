@@ -3,6 +3,7 @@ package com.jt.tours.web.rest.controller;
 import com.jt.tours.security.domain.User;
 import com.jt.tours.service.impl.UserService;
 import com.jt.tours.web.rest.dto.UserDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,7 @@ public class UserController {
     private String ROOT_API_PATH_PREFIX;
     private UserService userService;
 
+    @Autowired
     public UserController(UserService userService, @Value("${spring.data.rest.base-path}") String pathPrefix) {
         this.userService = userService;
         this.ROOT_API_PATH_PREFIX = pathPrefix;

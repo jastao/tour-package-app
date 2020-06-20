@@ -5,7 +5,6 @@ import com.jt.tours.security.filters.JwtTokenFilter;
 import com.jt.tours.security.filters.RestAccessDeniedHandler;
 import com.jt.tours.security.filters.RestAuthenticationEntryPoint;
 import com.jt.tours.security.jwt.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,17 +38,21 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     // Default authority group for a user.
     private static final String DEFAULT_AUTH_GROUP = "CSR_USER";
 
-    @Autowired
-    private CsrUserDetailsService csrUserDetailsService;
+    private final CsrUserDetailsService csrUserDetailsService;
 
-    @Autowired
-    private RestAccessDeniedHandler restAccessDeniedHandler;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
 
-    @Autowired
-    private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public WebSecurityConfiguration(CsrUserDetailsService csrUserDetailsService, RestAccessDeniedHandler restAccessDeniedHandler,
+                                    RestAuthenticationEntryPoint restAuthenticationEntryPoint, JwtTokenProvider jwtTokenProvider) {
+        this.csrUserDetailsService= csrUserDetailsService;
+        this.restAccessDeniedHandler = restAccessDeniedHandler;
+        this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     /**
      * Configures the authentication manager that will be used for authenticating user.

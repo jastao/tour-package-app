@@ -1,0 +1,48 @@
+server:
+  port: 8080
+security:
+  jwt:
+    token:
+      secret-key: tour-secret
+spring:
+  profiles: development-h2
+  data:
+    rest:
+      base-path: /api/v1
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none
+    # Set to true to show SQL statements.
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:TourPackageDb?DB_CLOSE_ON_EXIT=FALSE
+    username: admin
+    password: admin
+
+---
+
+server:
+  port: 8080
+security:
+  jwt:
+    token:
+      secret-key: tour-secret
+spring:
+  profiles: development-mysql
+  data:
+    rest:
+      base-path: /api/v1
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    hibernate:
+      ddl-auto: none
+    # Set to true to show SQL statements.
+    show-sql: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/TourPackageDb?useSSL=true&autoReconnect=true
+    username: admin
+    password: admin

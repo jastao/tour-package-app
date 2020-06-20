@@ -4,7 +4,6 @@ import com.jt.tours.service.impl.TourRatingService;
 import com.jt.tours.web.rest.assembler.RatingAssembler;
 import com.jt.tours.web.rest.dto.TourRatingDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +26,6 @@ public class RatingController {
 
     private RatingAssembler ratingAssembler;
 
-    @Autowired
     public RatingController(TourRatingService tourRatingService, RatingAssembler ratingAssembler) {
         this.tourRatingService = tourRatingService;
         this.ratingAssembler = ratingAssembler;

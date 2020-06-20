@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -37,7 +38,8 @@ public class JwtTokenProvider implements Serializable {
      * The current approach is to pass in the secret key as environment variable. A better approach would be
      * to store the key in a config server.
      */
-    public JwtTokenProvider(@Value("${security.jwt.token.secret-key})") String secretKey) {
+    @Autowired
+    public JwtTokenProvider(@Value("${security.jwt.token.secret-key}") String secretKey) {
         // encode the secret key in base64
         this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
