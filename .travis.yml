@@ -1,0 +1,8 @@
+# Travis CI yaml build file
+language: java
+
+jdk:
+  - openjdk11
+
+script:
+  ./mvnw install -Dmaven.test.skip=true
