@@ -45,7 +45,7 @@ public class TourRatingService implements ITourRatingService {
      * @throws NoSuchElementException if no Tour found
      */
     @Override
-    public TourRating createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment) throws NoSuchElementException {
+    public TourRating createNewRating(Long tourId, Long customerId, Integer ratingScore, String comment) {
 
         log.info("Create tour rating for a tour {} of customer {}", tourId, customerId);
         Tour targetTour = findTour(tourId);
@@ -117,7 +117,7 @@ public class TourRatingService implements ITourRatingService {
      * @throws NoSuchElementException if not tour rating found
      */
     @Override
-    public Page<TourRating> getTourRatings(Long tourId, Pageable pageable) throws NoSuchElementException {
+    public Page<TourRating> getTourRatings(Long tourId, Pageable pageable) {
 
         log.info("Retrieve tour rating for tour {}", tourId);
         Tour targetTour = findTour(tourId);
@@ -177,7 +177,7 @@ public class TourRatingService implements ITourRatingService {
      * @throws NoSuchElementException if not tour rating found
      */
     @Override
-    public void delete(Long tourId, Long customerId) throws NoSuchElementException {
+    public void delete(Long tourId, Long customerId) {
         TourRating rating = findTourRating(tourId, customerId);
         tourRatingRepository.delete(rating);
     }
@@ -189,7 +189,7 @@ public class TourRatingService implements ITourRatingService {
      * @return the average score as a Double
      * @throws NoSuchElementException if not tour rating found
      */
-    public Double getAverageRatingScore(Long tourId) throws NoSuchElementException {
+    public Double getAverageRatingScore(Long tourId) {
 
         List<TourRating> ratings = tourRatingRepository.findByTourId(tourId);
         OptionalDouble average = ratings.stream().mapToInt( (rating) -> rating.getRatingScore()).average();
@@ -203,7 +203,7 @@ public class TourRatingService implements ITourRatingService {
      * @return the found tour
      * @throws NoSuchElementException if no tour is found
      */
-    private Tour findTour(Long tourId) throws NoSuchElementException {
+    private Tour findTour(Long tourId) {
         return tourRepository.findById(tourId).orElseThrow( () ->
                 new NoSuchElementException("Tour does not exist " + tourId));
     }
@@ -216,7 +216,7 @@ public class TourRatingService implements ITourRatingService {
      * @return tour rating if found
      * @throws NoSuchElementException if no tour is found
      */
-    private TourRating findTourRating(Long tourId, Long customerId) throws NoSuchElementException {
+    private TourRating findTourRating(Long tourId, Long customerId) {
         return tourRatingRepository.findByTourIdAndCustomerId(tourId, customerId).orElseThrow( () ->
                 new NoSuchElementException("Tour rating does not exist for tourId(" + tourId + ") for customer( " + customerId + ")"));
     }

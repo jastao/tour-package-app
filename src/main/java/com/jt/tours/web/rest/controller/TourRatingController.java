@@ -11,11 +11,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.AbstractMap;
-import java.util.NoSuchElementException;
 
 /**
  * Tour Rating Controller
@@ -32,12 +29,12 @@ import java.util.NoSuchElementException;
  * Created by Jason Tao on 5/30/2020
  */
 @Api(description = "API for accessing tour ratings")
-@RequestMapping("${spring.data.rest.base-path}/tours/{tourId}/ratings")
+@RequestMapping("/api/v1/tours/{tourId}/ratings")
 @RestController
 @Slf4j
 public class TourRatingController {
 
-    private static String ROOT_API_PATH_PREFIX;
+    private final String ROOT_API_PATH_PREFIX = "/api/v1";
 
     private TourRatingService tourRatingService;
 
@@ -49,12 +46,10 @@ public class TourRatingController {
 
     @Autowired
     protected TourRatingController(TourRatingService tourRatingService,
-                                   TourRatingMapper tourRatingMapper, RatingAssembler ratingAssembler,
-                                   @Value("${spring.data.rest.base-path}") String pathPrefix) {
+                                   TourRatingMapper tourRatingMapper, RatingAssembler ratingAssembler) {
         this.tourRatingService = tourRatingService;
         this.tourRatingMapper = tourRatingMapper;
         this.ratingAssembler = ratingAssembler;
-        this.ROOT_API_PATH_PREFIX = pathPrefix;
     }
 
     /**
@@ -65,14 +60,17 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Create a tour rating")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK."),
             @ApiResponse(code = 201, message = "Tour rating created."),
+            @ApiResponse(code = 400, message = "The tour id is invalid."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
     @PostMapping
     @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> createTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+
+        if(tourId < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tour id is invalid.");
+        }
 
         log.info("POST {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
 
@@ -94,18 +92,23 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Create a tour rating with same rating score for multiple customers.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 201, message = "Tour ratings are created."),
+            @ApiResponse(code = 200, message = "Request POST completed."),
+            @ApiResponse(code = 400, message = "The tour id is invalid."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
     @PostMapping("/{score}")
     @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createTourRatings(@PathVariable("tourId") long tourId,
+    public ResponseEntity<String> createTourRatings(@PathVariable("tourId") long tourId,
                                   @PathVariable("score") int ratingScore,
                                   @RequestParam("customers") Long[] customers) {
+
+        if(tourId < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tour id is invalid.");
+        }
+
         log.info("POST {}/tours/{}/ratings/{}", ROOT_API_PATH_PREFIX, tourId, ratingScore);
         tourRatingService.createNewRatings(tourId, customers, ratingScore);
+        return ResponseEntity.ok("Created rating for multiple customers");
     }
 
     /**
@@ -117,15 +120,23 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Find all the rating associated with a given tour.", response = TourRatingDTO.class)
     @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Request GET completed."),
+            @ApiResponse(code = 400, message = "The tour id is invalid."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
     @PreAuthorize("permitAll()")
     @GetMapping
-    public PagedModel<TourRatingDTO> getAllRatingsFromTour(@PathVariable("tourId") long tourId, Pageable pageable,
-                                                           PagedResourcesAssembler pagedAssembler) {
+    public ResponseEntity<?> getAllRatingsFromTour(@PathVariable("tourId") long tourId, Pageable pageable,
+                                                   PagedResourcesAssembler pagedAssembler) {
         log.info("GET {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
+
+        if(tourId < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tour id is invalid.");
+        }
+
         Page<TourRating> pagedTourRating = tourRatingService.getTourRatings(tourId, pageable);
-        return pagedAssembler.toModel(pagedTourRating, ratingAssembler);
+
+        return ResponseEntity.ok(pagedAssembler.toModel(pagedTourRating, ratingAssembler));
     }
 
     /**
@@ -136,13 +147,20 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Calculate the average score of a tour.")
     @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Request GET completed."),
+            @ApiResponse(code = 400, message = "The tour id is invalid."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
     @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     @GetMapping("/average")
-    public AbstractMap.SimpleEntry<String, Double> getAverage(@PathVariable("tourId") long tourId) {
+    public ResponseEntity<?> getAverage(@PathVariable("tourId") long tourId) {
+
+        if(tourId < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tour id is invalid.");
+        }
+
         log.info("GET {}/tours/{}/ratings/average", ROOT_API_PATH_PREFIX, tourId);
-        return new AbstractMap.SimpleEntry<String, Double>("average", tourRatingService.getAverageRatingScore(tourId));
+        return ResponseEntity.ok(new AbstractMap.SimpleEntry<String, Double>("average", tourRatingService.getAverageRatingScore(tourId)));
     }
 
     /**
@@ -154,14 +172,21 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Update the score and the comment for a tour.", response = TourRatingDTO.class)
     @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Request PUT completed."),
+            @ApiResponse(code = 400, message = "The tour id is invalid."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
-    @PreAuthorize("hasRole('CSR_USER') or hasROLE('CSR_ADMIN')")
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     @PutMapping
-    public TourRatingDTO updateTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+    public ResponseEntity<?> updateTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+
+        if(tourId < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tour id is invalid.");
+        }
+
         log.info("PUT {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
-        return tourRatingMapper
-                .tourRatingToTourRatingDTO(tourRatingService.updateRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment()));
+        return ResponseEntity.ok(tourRatingMapper
+                .tourRatingToTourRatingDTO(tourRatingService.updateRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment())));
     }
 
     /**
@@ -173,14 +198,21 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Update either the score or the comment for a tour.", response = TourRatingDTO.class)
     @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Request PATCH completed."),
+            @ApiResponse(code = 400, message = "The tour id is invalid."),
             @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
-    @PreAuthorize("hasRole('CSR_USER') or hasROLE('CSR_ADMIN')")
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     @PatchMapping
-    public TourRatingDTO updatePartialTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+    public ResponseEntity<?> updatePartialTourRating(@PathVariable("tourId") long tourId, @Valid @RequestBody TourRatingDTO tourRatingDTO) {
+
+        if(tourId < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tour id is invalid.");
+        }
+
         log.info("PATCH {}/tours/{}/ratings", ROOT_API_PATH_PREFIX, tourId);
-        return tourRatingMapper
-                .tourRatingToTourRatingDTO(tourRatingService.updateSomeRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment()));
+        return ResponseEntity.ok(tourRatingMapper
+                .tourRatingToTourRatingDTO(tourRatingService.updateSomeRating(tourId, tourRatingDTO.getCustomerId(), tourRatingDTO.getRatingScore(), tourRatingDTO.getComment())));
     }
 
     /**
@@ -191,26 +223,23 @@ public class TourRatingController {
      */
     @ApiOperation(value = "Deletes a tour rating.")
     @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "Tour id or customer id do not exist.")
+            @ApiResponse(code = 204, message = "The tour rating is removed."),
+            @ApiResponse(code = 400, message = "The tour id is invalid."),
+            @ApiResponse(code = 404, message = "Tour id does not exist.")
     })
-    @PreAuthorize("hasRole('CSR_USER') or hasROLE('CSR_ADMIN')")
+    @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
     @DeleteMapping("/{customerId}")
-    public void removeTourRating(@PathVariable("tourId") long tourId, @PathVariable("customerId") long customerId) {
+    public ResponseEntity<?> removeTourRating(@PathVariable("tourId") long tourId, @PathVariable("customerId") long customerId) {
+
+        if(tourId < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tour id is invalid.");
+        }
+
         log.info("PATCH {}/tours/{}/ratings/{}", ROOT_API_PATH_PREFIX, tourId, customerId);
         tourRatingService.delete(tourId, customerId);
+
+        return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Process error handling if NoSuchElementException is thrown.
-     *
-     * @param ex the exception
-     * @return error message
-     */
-    @ExceptionHandler({NoSuchElementException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleTourRatingNotFoundException(NoSuchElementException ex) {
-        log.info("Error finding tour rating: ", ex.getMessage());
-        return ex.getMessage();
-    }
 }
 

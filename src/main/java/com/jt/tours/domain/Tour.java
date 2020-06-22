@@ -59,12 +59,13 @@ public class Tour implements Serializable {
     @NotNull
     @Column
     @Enumerated(EnumType.STRING)
-    @ApiModelProperty(notes = "")
+    @ApiModelProperty(notes = "Difficulty of the tour")
     private DifficultyEnum difficulty;
 
     @NotNull
     @Column
-    @ApiModelProperty(notes = "")
+    @Enumerated(EnumType.STRING)
+    @ApiModelProperty(notes = "Region where the tour destination is located in.")
     private RegionEnum region;
 
     @Builder

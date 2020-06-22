@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  mysql-container:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'TourPackageDb'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'user'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'password'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3306:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3306'
+      # Define the volume that will be used to persist the database data
+    volumes:
+      - mysql_db_data:/var/lib/mysql
+  tour-package-app:
+    # Retry bring up the service upon failure
+    restart: on-failure
+    build:
+      # Define the context path
+      context: .
+      # Specify the dockerfile
+      dockerfile: docker/Dockerfile
+    ports:
+      # <Port exposed> : < Service port running inside container>
+      - "9000:9000"
+    expose:
+      # Opens port 9000 on the container
+      - "9000"
+    depends_on:
+      # Order dependence - wait for the mysql container to start.
+      - mysql-container
+# Names our volume
+volumes:
+  mysql_db_data:

@@ -1,10 +1,5 @@
 server:
   port: 9000
-# For production, do not leave secret in the properties file.
-security:
-  jwt:
-    token:
-      secret-key: tour-secret
 spring:
   data:
     rest:
@@ -24,6 +19,6 @@ spring:
     # Let the application continue even if table exists
     continue-on-error: true
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/TourPackageDb?useSSL=true&autoReconnect=true
-    username: root
+    url: jdbc:mysql://mysql-container:3306/TourPackageDb?useSSL=true&autoReconnect=true
+    username: user
     password: password

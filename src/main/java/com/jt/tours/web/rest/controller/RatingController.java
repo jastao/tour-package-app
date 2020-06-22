@@ -5,9 +5,11 @@ import com.jt.tours.web.rest.assembler.RatingAssembler;
 import com.jt.tours.web.rest.dto.TourRatingDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.NoSuchElementException;
 
@@ -16,7 +18,7 @@ import java.util.NoSuchElementException;
  *
  * Created by Jason Tao on 6/1/2020
  */
-@RequestMapping("${spring.data.rest.base-path}/ratings")
+@RequestMapping("/api/v1/ratings")
 @RestController
 @PreAuthorize("hasRole('CSR_USER') or hasRole('CSR_ADMIN')")
 @Slf4j
@@ -53,18 +55,5 @@ public class RatingController {
     public CollectionModel<TourRatingDTO> getRatings() {
         log.info("GET /ratings");
         return ratingAssembler.toCollectionModel(tourRatingService.searchAllRatings());
-    }
-
-    /**
-     * Process error handling if NoSuchElementException is thrown.
-     *
-     * @param ex the exception
-     * @return error message
-     */
-    @ExceptionHandler({NoSuchElementException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleTourRatingNotFoundException(NoSuchElementException ex) {
-        log.info("Error finding tour rating: ", ex.getMessage());
-        return ex.getMessage();
     }
 }

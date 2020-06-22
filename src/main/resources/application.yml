@@ -1,9 +1,5 @@
 server:
-  port: 8080
-security:
-  jwt:
-    token:
-      secret-key: tour-secret
+  port: 8081
 spring:
   profiles: development-h2
   data:
@@ -20,17 +16,13 @@ spring:
       enabled: true
   datasource:
     url: jdbc:h2:mem:TourPackageDb?DB_CLOSE_ON_EXIT=FALSE
-    username: admin
-    password: admin
+    username: user
+    password: password
 
 ---
 
 server:
-  port: 8080
-security:
-  jwt:
-    token:
-      secret-key: tour-secret
+  port: 8082
 spring:
   profiles: development-mysql
   data:
@@ -43,6 +35,8 @@ spring:
     # Set to true to show SQL statements.
     show-sql: true
   datasource:
+    # For non-h2 database
+    initialization-mode: always
     url: jdbc:mysql://localhost:3306/TourPackageDb?useSSL=true&autoReconnect=true
-    username: admin
-    password: admin
+    username: user
+    password: password

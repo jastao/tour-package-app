@@ -15,9 +15,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Central point for exception handling for the entire application. Response entity with the proper error message
@@ -49,7 +49,18 @@ public class GlobalExceptionHandlerController extends ResponseEntityExceptionHan
      */
     @ExceptionHandler(value = HttpServerErrorException.class)
     public ResponseEntity<Object> handleHttpServerException(HttpServerErrorException ex) {
-        return errorResponse(HttpStatus.FORBIDDEN, ex.getMessage().toString());
+        return errorResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
+    /**
+     * Handles any NoSuchElementException and return appropriate status code and the message from the exception.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
+    @ExceptionHandler(value = NoSuchElementException.class)
+    public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex) {
+        return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     /**
@@ -60,7 +71,7 @@ public class GlobalExceptionHandlerController extends ResponseEntityExceptionHan
      */
     @ExceptionHandler(value = UsernameNotFoundException.class)
     public ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage().toString());
+        return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     /**
@@ -80,8 +91,8 @@ public class GlobalExceptionHandlerController extends ResponseEntityExceptionHan
      * @param ex the exception
      * @return the response entity
      */
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) throws IOException {
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
         return errorResponse(HttpStatus.FORBIDDEN, "Access denied.");
     }
 
@@ -91,9 +102,9 @@ public class GlobalExceptionHandlerController extends ResponseEntityExceptionHan
      * @param ex the exception
      * @return the response entity
      */
-    @ExceptionHandler(CustomException.class)
+    @ExceptionHandler(value = CustomException.class)
     public ResponseEntity<Object> handleCustomException(CustomException ex) {
-        return errorResponse(ex.getHttpStatus(), ex.getMessage().toString());
+        return errorResponse(ex.getHttpStatus(), ex.getMessage());
     }
 
     /**
