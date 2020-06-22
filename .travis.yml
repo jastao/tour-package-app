@@ -1,8 +1,10 @@
 # Travis CI yaml build file
 language: java
 
+# Specify the java version
 jdk:
   - openjdk11
 
+# Specify the maven build command using the install phase.
 script:
   ./mvnw install -Dmaven.test.skip=true
